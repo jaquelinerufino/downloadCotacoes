@@ -1,5 +1,6 @@
 def executaCotacoes(mes, ano, caminho):
     
+    from functions import baixaCotacoes as func
     import holidays
     from datetime import datetime, timedelta
     import calendar
@@ -46,9 +47,9 @@ def executaCotacoes(mes, ano, caminho):
     
             dataString = dataInicial.strftime("%d%m%Y")
             try:
-                baixacotacoes(dataString, caminho)
+                func.baixacotacoes(dataString, caminho)
             except Exception as e:
-                print('Finalizado com erro: ' + e)
+                print('Finalizado com erro: ' + str(e))
             else:
                 print('Arquivo finalizado com sucesso: ' + dataInicial.strftime("%d/%m/%y"))
             

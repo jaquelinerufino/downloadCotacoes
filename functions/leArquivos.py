@@ -1,5 +1,6 @@
 def leArquivos(mes, ano, caminho):
 
+    from functions import geraInsert as func
     import pandas as pd
     import glob
 
@@ -28,6 +29,6 @@ def leArquivos(mes, ano, caminho):
         
     dadosFinal = dados[['COT_ID','COT_DATA','COT_COMPRA','COT_VENDA','COT_COMPRA_USD', 'COT_VENDA_USD']]
     
-    texto = geraInsert(dadosFinal, 'tp_master.dbo.I_COTACOES' )
+    texto = func.geraInsert(dadosFinal, 'tp_master.dbo.I_COTACOES' )
         
     return texto

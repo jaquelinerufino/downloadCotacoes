@@ -11,6 +11,8 @@ def baixacotacoes(data, caminho):
 
     # configura navegador
     options = EdgeOptions.Options()
+    
+    options.add_argument("--headless=new")
         
     options.use_chromium = True
         
@@ -18,7 +20,7 @@ def baixacotacoes(data, caminho):
     
     driver = webdriver.Edge(options= options)
     
-    driver.minimize_window()
+    #driver.minimize_window()
     
     # baixa o arquivo
     driver.get("https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes")
