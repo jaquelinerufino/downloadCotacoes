@@ -12,7 +12,8 @@ def leArquivos(mes, ano, caminho):
     caminhoArquivos = glob.glob(caminhoExtensao)
     
     for i in caminhoArquivos:
-        arquivos.append(i.replace(caminho[:caminho[:-1].rfind('/')+ 1] , '')) 
+        #arquivos.append(i.replace(caminho[:caminho[:-1].rfind('/')+ 1] , '')) 
+        arquivos.append(i) 
         
     arquivos.sort()
     

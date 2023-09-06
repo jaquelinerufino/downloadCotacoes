@@ -29,6 +29,8 @@ def executaCotacoes(mes, ano, caminho):
     else:
         dataFinal = fimMes.date() + timedelta(days = 1)
 
+    print('Iniciando download: ' + str(datetime.now().date()))
+    
     if erro == 0:
 
         while dataInicial < dataFinal:
@@ -54,3 +56,6 @@ def executaCotacoes(mes, ano, caminho):
                 print('Arquivo finalizado com sucesso: ' + dataInicial.strftime("%d/%m/%y"))
             
             dataInicial = dataInicial + timedelta(days = 1)
+    
+    print('baixaCotacoes executado: ' + str(datetime.now().date()) )
+    
