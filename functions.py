@@ -10,36 +10,43 @@ class Cotacoes:
         
         feriados = holidays.BR()
         
-        hoje = datetime.now().date()
-        
+        erro = False
+        mensagemErro= ""
+        datas = []
         mesAno = "/" + mes + "/" + ano
 
         ano = int(ano)
         mes = int(mes)
+        
+        hoje = datetime.now().date()
+        if hoje.year < ano:
+            mensagemErro = "Erro: Não é possível baixar cotações de anos futuros."
+            erro = True
+        elif hoje.year == ano and hoje.month < mes:
+            mensagemErro = "Erro: Não é possível baixar cotações de meses futuros."
+            erro = True
+        
+        if not erro:
 
-        calendario = calendar.monthcalendar(ano, mes)
-
-        datas = []
-        for i in calendario:
-            for j in i:
-                if (j > 0):
-                    data = str(j) + mesAno
-                    data = datetime.strptime(data,"%d/%m/%Y").date()
+            calendario = calendar.monthcalendar(ano, mes)
             
-                if (data.weekday() != 5) and (data.weekday() != 6) and (data not in feriados) and (data < hoje): 
-                    datas.append(data)
+            for i in calendario:
+                for j in i:
+                    if (j > 0):
+                        data = str(j) + mesAno
+                        data = datetime.strptime(data,"%d/%m/%Y").date()
                 
-        return datas
+                        if (data.weekday() != 5) and (data.weekday() != 6) and (data not in feriados) and (data < hoje): 
+                            datas.append(data)
+                    
+        return erro, mensagemErro, datas
     
     
-    def validacaoData(self, datas, ano, mes):
+    def validacaoData(self, datas):
         
         hoje = datetime.now().date()
         diaInicial = datas[0]
         erro = False
-        
-        ultimoDiaMes = datetime(dataInicial.year, dataInicial.month, diaFinal).date()
-
         
         if hoje.year < ano:
             mensagemErro = "Erro: Não é possível baixar cotações de anos futuros."

@@ -1,20 +1,21 @@
 # from functions import geraCotacoes as func
-from functions.classCotacoes import Cotacoes as classCotacoes
+from functions import Cotacoes
+from datetime import datetime
+import pandas as pd
+import glob
+
+fn = Cotacoes()
 
 mes = '10'
 ano = '2023'
 caminho = '/Users/jaquelinerufino/Desktop/Estudos/cotacoes/data'
 
 caminho += chr(47)
-
-from datetime import datetime
-import pandas as pd
-import glob
     
-datas = classCotacoes.removeDataInvalida(ano=ano, mes=mes)
+datas = fn.removeDataInvalida(ano=ano, mes=mes)
 
-erro = classCotacoes.validacaoData(datas).erro
-mensagemErro = classCotacoes.validacaoData(datas).mensagemErro
+erro = fn.removeDataInvalida(ano=ano, mes=mes).erro
+mensagemErro = fn.removeDataInvalida(ano=ano, mes=mes).mensagemErro
 
 print('Iniciando download: ' + str(datetime.now()))
     
