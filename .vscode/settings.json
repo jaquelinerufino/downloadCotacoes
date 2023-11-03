@@ -10,5 +10,9 @@
     "python.testing.unittestEnabled": true,
     "python.testing.pytestArgs": [
         "tests"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
