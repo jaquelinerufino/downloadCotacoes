@@ -13,7 +13,6 @@ import glob
     
 datas = classCotacoes.removeDataInvalida(ano=ano, mes=mes)
 
-
 erro = classCotacoes.validacaoData(datas).erro
 mensagemErro = classCotacoes.validacaoData(datas).mensagemErro
 
