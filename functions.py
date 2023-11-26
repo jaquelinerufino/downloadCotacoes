@@ -1,67 +1,67 @@
 from datetime import datetime, timedelta
-import calendar
+from environs import Env
+import glob
+import os
 
-class Cotacoes:
+env = Env()
+
+env.read_env()
+
+class Quotations:
     def __init__(self):
         pass
     
-    def removeDataInvalida(self, ano, mes):
+    def removeInvalidDates(self, year, month, error):
         import holidays
+        import calendar
         
-        feriados = holidays.BR()
+        holidays = holidays.BR()
         
-        erro = False
-        mensagemErro= ""
-        datas = []
-        mesAno = "/" + mes + "/" + ano
-
-        ano = int(ano)
-        mes = int(mes)
+        errorMessage = ""
+        dates = []
+        monthYear = "/" + month + "/" + year
         
-        hoje = datetime.now().date()
-        if hoje.year < ano:
-            mensagemErro = "Erro: Não é possível baixar cotações de anos futuros."
-            erro = True
-        elif hoje.year == ano and hoje.month < mes:
-            mensagemErro = "Erro: Não é possível baixar cotações de meses futuros."
-            erro = True
-        
-        if not erro:
-
-            calendario = calendar.monthcalendar(ano, mes)
+        if not error:
+            year = int(year)
+            month = int(month)
             
-            for i in calendario:
+            today = datetime.now().date()
+
+            calendar = calendar.monthcalendar(year, month)
+            
+            for i in calendar:
                 for j in i:
                     if (j > 0):
-                        data = str(j) + mesAno
-                        data = datetime.strptime(data,"%d/%m/%Y").date()
+                        date = str(j) + monthYear
+                        date = datetime.strptime(date,"%d/%m/%Y").date()
                 
-                        if (data.weekday() != 5) and (data.weekday() != 6) and (data not in feriados) and (data < hoje): 
-                            datas.append(data)
+                        if (date.weekday() != 5) and (date.weekday() != 6) and (date not in holidays) and (date < today): 
+                            dates.append(date)
                     
-        return erro, mensagemErro, datas
+        return dates
     
     
-    def validacaoData(self, datas):
+    def validatingDates(self, year, month):
+        year = int(year)
+        month = int(month)
         
-        hoje = datetime.now().date()
-        diaInicial = datas[0]
-        erro = False
+        today = datetime.now().date()
         
-        if hoje.year < ano:
-            mensagemErro = "Erro: Não é possível baixar cotações de anos futuros."
-            erro = True
-        elif hoje.year == ano and hoje.month < mes:
-            mensagemErro = "Erro: Não é possível baixar cotações de meses futuros."
-            erro = True
+        error = False
+        errorMessage = ""
+        
+        if today.year < year:
+            errorMessage = "Erro: Não é possível baixar cotações de anos futuros."
+            error = True
+        elif today.year == year and today.month < month:
+            errorMessage = "Erro: Não é possível baixar cotações de meses futuros."
+            error = True
         else:
-            mensagemErro = "Data inválida"
-            erro = True
+            error = False
             
-        if erro:
-            return erro, mensagemErro
+        return error, errorMessage
         
-    def downloadCotacoes(self, data, diretorio):
+    def downloads(self, date, directory):
         
         from selenium import webdriver
         from selenium.webdriver.common.by import By
@@ -73,11 +73,11 @@ class Cotacoes:
         
         options = EdgeOptions.Options()
     
-        options.add_argument("--headless=new")
+        options.add_argument(env("EDGE_ARGUMENTS"))
             
         options.use_chromium = True
             
-        options.add_experimental_option("prefs", {"download.default_directory": diretorio})
+        options.add_experimental_option("prefs", {"download.default_directory": directory})
         
         driver = webdriver.Edge(options= options)
         
@@ -85,64 +85,113 @@ class Cotacoes:
         try:
             driver.get("https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes")
             
-            botaoCookies = "/html/body/app-root/bcb-cookies/div/div/div/div/button[2]"
+            cookiesButton = "/html/body/app-root/bcb-cookies/div/div/div/div/button[2]"
 
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, botaoCookies))).click()
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, cookiesButton))).click()
             
             iframe = driver.find_element(By.CSS_SELECTOR, "iframe")
             driver.switch_to.frame(iframe)
             
             radioButton = driver.find_element(By.XPATH,"//input[@type='radio'][@value='2']")
 
-            botao = driver.find_element(By.XPATH,"//input[@type='submit']")
+            button = driver.find_element(By.XPATH,"//input[@type='submit']")
             
             radioButton.click()
             
-            datainicial = driver.find_element(By.ID, "DATAINI")
-            datainicial.clear()
-            datainicial.send_keys(data)
+            beginDate = driver.find_element(By.ID, "DATAINI")
+            beginDate.clear()
+            beginDate.send_keys(date)
             
             driver.implicitly_wait(0.5)
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(botao)).click()
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(button)).click()
             
             link = driver.find_element(By.PARTIAL_LINK_TEXT, "CSV")
             link.click()
             
-            diretorioArquivo = caminho + "cotacaoTodasAsMoedas_" + data + ".csv"
+            fileDirectory = directory + env("CSV_FILE_NAME") + date + ".csv"
 
-            while not os.path.exists(diretorioArquivo):
+            while not os.path.exists(fileDirectory):
                 time.sleep(1)
                 
             driver.quit()
-        except Exception as e:
-            mensagemResultado = "Ocorreu um erro com a data {}: {}".format(data, e)
-            erro = True
-        else:
-            mensagemResultado = "Dados do dia {} salvos com sucesso no diretorio {}".format(data, diretorioArquivo)
-            erro = False
             
-        return erro, mensagemResultado
+        except Exception as e:
+            message = "Ocorreu um erro com a data {}: {}".format(date, e)
+            error = True
+        else:
+            message = "Dados do dia {} salvos com sucesso no diretorio {}".format(date, fileDirectory)
+            error = False
+            
+        return error, message
 
-    def leituraArquivos(self, diretorio):
+    def readFiles(self, directory):
         import pandas as pd
         import glob
 
-        diretorioExtensao = diretorio + '*.csv'
-        arquivos = []
-        arquivo = ''
-        dados = pd.DataFrame(columns=['COT_DATA','COT_ID', 'tipo', 'moeda', 'COT_COMPRA', 'COT_VENDA', 'COT_COMPRA_USD', 'COT_VENDA_USD'])
+        directoryExt = directory + '*.csv'
+        files = []
+        file = ''
+        csvColumns = env.list("DF_COLUMNS")
+        csvDtypes = env.dict("DF_DICT")
+        finalColumns = env.list("FINAL_COLUMNS")
         
-        caminhoArquivos = glob.glob(caminhoExtensao)
+        data = pd.DataFrame(columns=csvColumns)
         
-        for i in caminhoArquivos:
-            #arquivos.append(i.replace(caminho[:caminho[:-1].rfind('/')+ 1] , '')) 
-            arquivos.append(i) 
+        fileDirectory = glob.glob(directoryExt)
+        
+        for i in fileDirectory:
+            files.append(i) 
             
-        arquivos.sort()
+        files.sort()
         
-        while len(arquivos) > 0:
-            arquivo = arquivos[0]
-            aux = pd.read_csv(arquivo, delimiter=';', index_col=None, decimal=',',names=['COT_DATA','COT_ID', 'tipo', 'moeda', 'COT_COMPRA', 'COT_VENDA', 'COT_COMPRA_USD', 'COT_VENDA_USD'], dtype={'COT_DATA':str,'COT_ID':str, 'tipo':str, 'moeda':str, 'COT_COMPRA':float, 'COT_VENDA':float, 'COT_COMPRA_USD':float, 'COT_VENDA_USD':float})
-            arquivos.remove(arquivo)
-            dados["COT_ID"] = dados["COT_ID"].astype(str).str.zfill(3)
-            dados = pd.concat([dados, aux], ignore_index=True)
+        while len(files) > 0:
+            file = files[0]
+            df = pd.read_csv(file, delimiter=';', index_col=None, decimal=',', names=csvColumns, dtype=csvDtypes)
+            files.remove(file)
+            
+            if data.empty:
+                data = df.copy()
+            else:
+                data = pd.concat([data, df], ignore_index=True)
+        for i in data.index:    
+            
+            formatedDate = data["COT_DATA"][i]
+            formatedDate = formatedDate[-4:] + formatedDate[2:4] + formatedDate[:2]
+            data.at[i, "COT_DATA"] = formatedDate
+            
+            countryCode = data["COT_ID"][i]
+            countryCode = countryCode.zfill(3)
+            data.at[i, "COT_ID"] = countryCode
+        
+        data = data[finalColumns]    
+            
+        return data
+    
+    def writeSQL(self, data):
+        dbTable = env("TABLE")
+        fileName = env("FILE_NAME")
+
+        file = open(directory + fileName + year + month + ".sql", "w")
+
+        insert = "INSERT INTO {} (".format(dbTable)
+        columns = str(list(files.columns))[1:-1]
+        columns = re.sub(r"\'", "", columns)
+        values = ""
+
+        for row in data.itertuples(index=False, name=None):
+            values += insert + columns + ") values "
+            values += re.sub(r"nan", "null", str(row))
+            values += "\n"
+
+        file.write(values[:-2])
+
+        file.close()
+    
+    def clearFiles(self, directory):
+        
+        directoryExt = directory + '*.csv'
+        
+        fileDirectory = glob.glob(directoryExt)
+        
+        for file in fileDirectory:
+            os.remove(file)
