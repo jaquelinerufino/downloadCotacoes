@@ -195,3 +195,5 @@ class Quotations:
         
         for file in fileDirectory:
             os.remove(file)
+            
+cotacoes = Quotations()

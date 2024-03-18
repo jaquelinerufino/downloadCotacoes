@@ -12,11 +12,10 @@ env.read_env()
 
 quot = Quotations()
 
-month = '12'
-year = '2023'
+print("***DOWNLOAD DE COTACOES***")
+year = input("Insira o ano para download")
+month = input("Insira o mês para download")
 directory = env("DEF_DIRECTORY")
-
-directory += chr(47)
 
 error, errorMessage = quot.validatingDates(year, month)
     
@@ -38,4 +37,4 @@ else:
         
     quot.writeSQL(files)
 
-    quot.clearFiles(directory)
+quot.clearFiles(directory)
