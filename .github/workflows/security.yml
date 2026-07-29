@@ -1,0 +1,43 @@
+name: Qualidade e segurança
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Configurar Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Auditar vulnerabilidades
+        run: python -m pip_audit -r requirements.txt
+
+      - name: Verificar o código
+        run: python -m ruff check .
+
+      - name: Verificar a formatação
+        run: python -m ruff format --check src main.py tests
+
+      - name: Executar os testes
+        run: python -m pytest

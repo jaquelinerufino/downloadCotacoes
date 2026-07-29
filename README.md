@@ -34,6 +34,9 @@ SQL `INSERT`.
 ├── tests/                    # Testes automatizados
 ├── notebooks/                # Notebooks históricos
 ├── legacy/                   # Implementações antigas
+├── .github/
+│   ├── dependabot.yml        # Atualizações automáticas de dependências
+│   └── workflows/security.yml # Testes e auditoria no GitHub Actions
 ├── .env.example              # Exemplo de configuração
 ├── pyproject.toml            # Pacote, CLI, pytest e Ruff
 ├── requirements.txt          # Dependências da aplicação
@@ -175,8 +178,18 @@ ruff check .
 ruff format --check .
 ```
 
+Audite as dependências:
+
+```bash
+pip-audit -r requirements.txt
+```
+
 Os diretórios `legacy/` e `notebooks/` guardam código histórico e não fazem
 parte da análise do Ruff.
+
+O workflow `Qualidade e segurança` executa testes, Ruff e `pip-audit` em cada
+pull request, atualização da branch principal e semanalmente. O Dependabot
+também verifica, toda semana, dependências Python e GitHub Actions.
 
 ## Fluxo
 
