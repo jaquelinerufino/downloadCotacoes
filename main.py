@@ -1,40 +1,12 @@
-# from functions import geraCotacoes as func
-from functions import Quotations
-from datetime import datetime
-from environs import Env
-import pandas as pd
-import glob
-import re
-import os
+"""Entrada de compatibilidade para executar o projeto sem instalação."""
 
-env = Env()
-env.read_env()
+import sys
+from pathlib import Path
 
-quot = Quotations()
+SOURCE_DIRECTORY = Path(__file__).resolve().parent / "src"
+sys.path.insert(0, str(SOURCE_DIRECTORY))
 
-print("***DOWNLOAD DE COTACOES***")
-year = input("Insira o ano para download")
-month = input("Insira o mês para download")
-directory = env("DEF_DIRECTORY")
+from download_cotacoes.cli import main  # noqa: E402
 
-error, errorMessage = quot.validatingDates(year, month)
-    
-dates = quot.removeInvalidDates(year, month, error)
-    
-if error:
-    print(errorMessage)
-else:
-    
-    for date in dates:
-    
-        dateStr = date.strftime("%d%m%Y")
-        
-        error, message = quot.downloads(dateStr, directory)
-    
-        print(message)
-        
-    files = quot.readFiles(directory)
-        
-    quot.writeSQL(files)
-
-quot.clearFiles(directory)
+if __name__ == "__main__":
+    raise SystemExit(main())

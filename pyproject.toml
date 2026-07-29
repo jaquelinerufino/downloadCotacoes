@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "download-cotacoes"
+version = "1.0.0"
+description = "Download de cotações de moedas do Banco Central e geração de SQL."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "environs>=9.5,<15",
+    "holidays>=0.35,<1",
+    "pandas>=2.1,<3",
+    "selenium>=4.15,<5",
+]
+
+[project.scripts]
+download-cotacoes = "download_cotacoes.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = ["legacy", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
